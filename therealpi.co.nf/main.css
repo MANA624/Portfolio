@@ -1,0 +1,210 @@
+* {
+	padding: 0px;
+	margin: 0px;
+}
+
+#topHeader {
+	font: bold 26px Brush Script MT;
+}
+
+h2 {
+	font: bold 14px Tahoma;
+}
+
+header, section, footer, aside, nav, article, hgroup {
+	display: block;
+}
+
+body {
+	width: 100%;
+	margin: auto;
+        display: flex;
+        display: -moz-box;
+	display: -webkit-box;
+        display: -ms-flexbox;
+	-moz-box-pack: center;
+        -webkit-box-pack: center;
+        //-ms-flexbox-pack: center;
+        box-pack: center;
+        background-color: #F4A460;
+}
+
+#mainWrapper {
+        width: 100%;
+        border-radius: 25px;
+	max-width: 1200px;
+	margin: 20px 25px;
+        display: flex;         /* Modern browsers */
+	display: -webkit-box;  /* iOS 6-, Safari 3.1-6 */
+        //display: -ms-flexbox;  /* IE 10 */
+        //display: -webkit-flex; /* Safari 6.1+. iOS 7.1+ */
+        display: -moz-box;
+        
+        //box-orient: vertical;           /* As specified */
+	-moz-box-orient: vertical;      /* Mozilla */
+        -webkit-box-orient: vertical;   /* WebKit */
+        
+        //flex: 1;               /* Modern browsers */ 
+	-moz-box-flex: 1;
+        -webkit-box-flex: 1; 
+        background-color: brown;
+        box-shadow: rgb(70, 70, 70) 5px 6px 3px;
+}
+
+#mainSection h1 {
+        font: bold 20px Tahoma;
+}
+
+#topHeader {
+	padding: 20px;
+	text-align: center;
+	color: lightblue;
+}
+
+#navigationBar {
+        //width: 200%;
+        display: flex;         /* Modern browsers */ 
+	//display: -webkit-box;  /* iOS 6-, Safari 3.1-6 */
+        //-webkit-box-flex: 1;
+	//display: -ms-flexbox;  /* IE 10 */
+	//display: -webkit-flex; /* Safari 6.1+. iOS 7.1+ */
+	         
+	width: 700px;
+	height: 80px;
+	align-items: center;
+        margin: 0px 20px;
+}
+
+#navigationBar a{
+        color: white;
+        font-size: 1.5em;
+        min-width: 132px;
+        text-decoration: none;
+        
+        flex: 1;               /* Modern browsers */
+	-webkit-box-flex: 1;   /* iOS 6-, Safari 3.1-6 */
+	width: 100%;            /* For old syntax, otherwise collapses. */
+	//-ms-flex: 1;           /* IE 10 */
+	//-webkit-flex: 1;       /* Safari 6.1+. iOS 7.1+ */
+	  
+	padding: 20px;
+	margin: 10px;
+	border-radius: 20px;
+	text-align: center;
+	height: 25px;
+	box-shadow: rgb(110, 110, 110) 3px 2px 3px;
+	text-shadow: rgb(0, 0, 255) 3px 3px 2px;
+	transition: transform 0.5s;
+        -webkit-transition: -webkit-transform 0.5s;
+	background: radial-gradient(rgba(5,5,5, .5) 10%, transparent 70%) 0 1px;
+}
+
+#navigationBar a:hover {
+        transform: scale(1.2);
+        -webkit-transform: scale(1.2);
+}
+
+#bodyDiv {
+	display: -moz-box;
+        display: -webkit-box;
+        -webkit-box-orient: horizontal;
+	-moz-box-orient: horizontal;
+}
+
+#mainSection {
+	-moz-box-flex: 1;
+        -webkit-box-flex: 1;
+	margin: 20px;
+	padding: 20px;
+}
+
+.paragraph {
+        text-indent: 27px;
+        margin: 15px;
+        text-align: justify;
+}
+
+.firstLetter {
+        font: bold 25px Brush Script MT;
+        line-height: 0px;
+}
+
+#mypic {
+        float: right;
+        max-height: 280px;
+        margin-left: 13px;
+}
+
+#side {
+        width: 280px;
+}
+
+#news {
+	border: 1px solid red;
+        padding: 30px;
+        margin: 40px 0px;
+        margin-right: 30px;
+	background: #44CCCC;
+        border-radius: 15px;
+}
+
+.loginBox {
+        border-radius: 7px;
+        max-width: 180px;
+}
+
+.loginBox:focus {
+        background-color: #BBBBBB;
+}
+
+#loginSubmit {
+        margin:auto;
+        margin-top: 15px;
+        padding: 3px;
+        border-radius: 10px;
+        display: block;
+        background-color: #44CCCC;
+        width: 70px;
+        height: 35px;
+        transition: background-color 0.5s, transform 0.5s, border-radius 0.5s;
+       
+}
+
+#loginSubmit:hover {
+        background-color: #33AAAA;
+        transform: scale(1.2);
+        border-radius: 10px;
+}
+
+#footer {
+	text-align: center;
+	padding: 20px;
+	border-top: 2px solid red;
+}
+
+article{ 
+	background: #FFFBCC;
+	border: 1px solid red;
+	padding: 20px;
+	margin-bottom:15px; 
+        border-radius: 20px;
+} 
+
+article footer{
+	text-align : right; 
+}﻿
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

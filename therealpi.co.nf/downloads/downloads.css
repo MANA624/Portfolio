@@ -1,0 +1,12 @@
+#bodyDiv a{
+        text-decoration: none;
+        color: black;
+}
+
+#mainSection article {
+        transition: background-color 0.4s;
+}
+
+#mainSection article:hover{
+        background-color: #FFF788;
+}

@@ -1,0 +1,16 @@
+#inform {
+        color: green;
+        text-align: center;
+        font-size: 3em;
+        position: relative;
+        left: 20%;
+        right: 20%;
+        border: 2px red dashed;
+}
+
+#mainSection h1 {
+        font-size: 30px;
+        color: #22AACC;
+        text-align: center;
+        margin: 20px
+}
