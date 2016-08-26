@@ -45,21 +45,21 @@ function boxPrint($title, $paragraph){
                                         <?php boxPrint('Averager (Windows)', '<span class=\'firstLetter\'>T</span>his is a small application used to store and calculate grades based on weights that the
                                                 user inputs. It also has other functionalities, such as extra credit, opening syllabi, 
                                                 and storing separate classes. To use on any Windows machine, simply download, extract
-                                                using 7-zip, click Installer.exe, and follow directions'); ?>
+                                                using 7-zip, place in a suitable location, and run. Updated 8/23/16'); ?>
                                 </a>
                                 
                                 <a href="/downloads/programs/AveragerLinux.7z" download="Averager.7z">
                                         <?php boxPrint('Averager (Linux)', '<span class=\'firstLetter\'>T</span>his is a small application used to store and calculate grades based on weights that the
                                                 user inputs. It also has other functionalities, such as extra credit, opening syllabi, 
                                                 and storing separate classes. To use, extract using 7-zip, save in a preferred location,
-                                                and run executable'); ?>
+                                                and run executable. Updated 8/23/16'); ?>
                                 </a>
                                 
                                 <a href="/downloads/programs/Averager.7z" download="Averager.7z">
                                         <?php boxPrint('Averager (Source Release)', '<span class=\'firstLetter\'>T</span>his is a small application used to store and calculate grades based on weights that the
                                                 user inputs. It also has other functionalities, such as extra credit, opening syllabi, 
                                                 and storing separate classes. To use, extract using 7-zip, save in a preferred location,
-                                                and run using Python'); ?>
+                                                and run using Python. Updated 8/23/16'); ?>
                                 </a>
                                 
                                 <?php

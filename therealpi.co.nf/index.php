@@ -19,12 +19,11 @@ else{
         <meta name="keywords" content="Downloads, Projects, Internhsip, Employer">
         <meta name="Author" content="Matthew Niemiec">
 	<title>Welcome to The Real Pi!</title>
-        <script src="prefixfree.js"></script>
 	<link rel="stylesheet" href="main.css" />
         <link rel="shortcut icon" href="favicon.ico" type="favicon/ico" />
 </head>
 <body>
-	<div id="mainWrapper">
+	<div id="mainWrapper" class="container">
 	<?php include 'header.php';?>
 		<div id="bodyDiv">
 		

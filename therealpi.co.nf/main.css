@@ -24,7 +24,6 @@ body {
         display: -ms-flexbox;
 	-moz-box-pack: center;
         -webkit-box-pack: center;
-        //-ms-flexbox-pack: center;
         box-pack: center;
         background-color: #F4A460;
 }
@@ -34,17 +33,12 @@ body {
         border-radius: 25px;
 	max-width: 1200px;
 	margin: 20px 25px;
-        display: flex;         /* Modern browsers */
-	display: -webkit-box;  /* iOS 6-, Safari 3.1-6 */
-        //display: -ms-flexbox;  /* IE 10 */
-        //display: -webkit-flex; /* Safari 6.1+. iOS 7.1+ */
+        
+        display: flex;         
+	display: -webkit-box;
         display: -moz-box;
-        
-        //box-orient: vertical;           /* As specified */
-	-moz-box-orient: vertical;      /* Mozilla */
-        -webkit-box-orient: vertical;   /* WebKit */
-        
-        //flex: 1;               /* Modern browsers */ 
+	-moz-box-orient: vertical;
+        -webkit-box-orient: vertical;
 	-moz-box-flex: 1;
         -webkit-box-flex: 1; 
         background-color: brown;
@@ -62,14 +56,10 @@ body {
 }
 
 #navigationBar {
-        //width: 200%;
-        display: flex;         /* Modern browsers */ 
-	//display: -webkit-box;  /* iOS 6-, Safari 3.1-6 */
-        //-webkit-box-flex: 1;
-	//display: -ms-flexbox;  /* IE 10 */
-	//display: -webkit-flex; /* Safari 6.1+. iOS 7.1+ */
-	         
-	width: 700px;
+        
+        display: inline-flex;
+        width: 97%;
+	
 	height: 80px;
 	align-items: center;
         margin: 0px 20px;
@@ -79,13 +69,12 @@ body {
         color: white;
         font-size: 1.5em;
         min-width: 132px;
+        width: 100%;
         text-decoration: none;
         
-        flex: 1;               /* Modern browsers */
-	-webkit-box-flex: 1;   /* iOS 6-, Safari 3.1-6 */
-	width: 100%;            /* For old syntax, otherwise collapses. */
-	//-ms-flex: 1;           /* IE 10 */
-	//-webkit-flex: 1;       /* Safari 6.1+. iOS 7.1+ */
+        flex: 1;
+	-webkit-box-flex: 1;
+	width: 100%;
 	  
 	padding: 20px;
 	margin: 10px;
@@ -193,10 +182,6 @@ article{
 article footer{
 	text-align : right; 
 }﻿
-
-
-
-
 
 
 

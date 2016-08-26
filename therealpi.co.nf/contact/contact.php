@@ -10,7 +10,7 @@ else{
 }
 
 $response = '';
-$success = false;
+$success = true;
 ini_set('post_max_size', '64M');
 ini_set('upload_max_filesize', '64M');
 
@@ -32,25 +32,35 @@ if(isset($name)){
 			if($size <= $max_size){
 				$location = '../uploads/';
 				
-				if(move_uploaded_file($tmp_name, $location.$name)){
-                                        $success = true;
+				if(move_uploaded_file($tmp_name, $location.$name)){                                     
 					$response = 'File upload successful';
 				}
 				else{
 					$response = 'File upload failed';
+                                        $success = false;
 				}
 			}
 			else{
 				$response = 'File must be less than 2MB';
+                                $success = false;
 			}
 		}
 		else{
 			$response = 'Not a valid extension';
+                        $success = false;
 		}
 	}
-	else{
-		$response = 'You must submit a file';
-	}
+}
+
+if(isset($_POST['name'] && isset($_POST['email'] && isset($_POST['subject'] && isset($_POST['mainText']){
+        $contact_name = $_POST['name'];
+        $contact_email = $_POST['email'];
+        $subject = $_POST['subject'];
+        $main_text = $_POST['mainText'];
+        
+        if(!isempty($contact_name) && !isempty($contact_email) && !isempty($subject) && !isempty($mainText)){
+                echo 'Yo';
+        }
 }
 
 ?>
@@ -81,13 +91,13 @@ if(isset($name)){
                                         your browser and version number. Thank you for your input!</p>
 					<form action="contact.php" method="POST" enctype="multipart/form-data">
                                                 <br/>Your Name:<br/>
-                                                <input type="text" class="nameInfo" placeholder="eg. John Doe" />
+                                                <input type="text" class="nameInfo" name="name" placeholder="eg. John Doe" />
                                                 <br/>Your email:<br/>
-                                                <input type="text" class="nameInfo" placeholder="example@example.com" />
+                                                <input type="text" class="nameInfo" name="email" placeholder="example@example.com" />
                                                 <br/>Subject:<br/>
-                                                <input type="text" class="nameInfo" placeholder="Subject" />
+                                                <input type="text" class="nameInfo" name="subject" placeholder="Subject" />
                                                 <br/>Please list any comments or suggestions below:<br/>
-                                                <textarea id="suggest" placeholder="Comments and suggestions" /></textarea>
+                                                <textarea id="suggest" placeholder="Comments and suggestions" name="mainText" /></textarea>
                                                 <br/>
                                                 <input type="file" name="fileUpload"><br/><br/>
                                                 <br/>
