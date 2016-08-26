@@ -15,6 +15,9 @@ from threading import Thread
 import shutil
 import csv
 import os
+import subprocess
+import pickle
+
 
 # This is the class used to contain the application. All functionality and design are stored inside the
 # following lines of code
@@ -27,7 +30,7 @@ class Gui:
     active_boxes = 6
     root = Tk()
     root.title("The World's Best Grade Averager!")
-    img = PhotoImage(file='favicon-5.gif')
+    img = PhotoImage(file='favicon.gif')
     root.tk.call('wm', 'iconphoto', root._w, img)
 
     # These variables make up some of the more technical aspects of the program
@@ -36,6 +39,22 @@ class Gui:
     categories = 0
     class_index = -1
     line = []
+
+    # Options dealing with the Show section of the Customize menu
+    show_file_name = "show.pkl"
+    try:
+        read_show = open(show_file_name, 'rb')
+        show_states = pickle.load(read_show)
+        read_show.close()
+    except FileNotFoundError:
+        show_states = [0, 1]
+        write_show = open(show_file_name, 'wb')
+        pickle.dump(show_states, write_show, pickle.HIGHEST_PROTOCOL)
+        write_show.close()
+    show_drop = BooleanVar()
+    show_extra_credit = BooleanVar()
+    show_drop.set(show_states[0])
+    show_extra_credit.set(show_states[1])
 
     # This lets the program know that the user is not trying to rename a class, add a class, get help, etc.
     child_window_open = False
@@ -51,11 +70,15 @@ class Gui:
 
         Label(self.root, text="Welcome to the Grade Averager").grid(row=0, columnspan=6, padx=10, pady=20)
 
-        Label(self.root, text="Category").grid(row=1, column=0)
+        Label(self.root, text="Category").grid(row=1, column=0, padx=10, sticky=E)
         Label(self.root, text="Score(s)").grid(row=1, column=1)
         Label(self.root, text="Weight (%)").grid(row=1, column=2)
-        Label(self.root, text="Drop lowest grade?").grid(row=1, column=3)
-        Label(self.root, text="Extra credit?").grid(row=1, column=4)
+        if self.show_states[0]:
+            self.drop_label = Label(self.root, text="Drop lowest grade?")
+            self.drop_label.grid(row=1, column=3, padx=4)
+        if self.show_states[1]:
+            self.extra_label = Label(self.root, text="Extra credit?")
+            self.extra_label.grid(row=1, column=4, padx=4)
 
         # These lines of code set up the input points for the user. self.active_boxes
         # (initially set to 6) determines how many rows (or categories) to create
@@ -63,6 +86,8 @@ class Gui:
         self.weights = [self.create_entries(row+2, 2) for row in range(self.active_boxes)]
         self.drop_low = [self.create_check_boxes(row + 2, 3) for row in range(self.active_boxes)]
         self.extra_credit = [self.create_check_boxes(row+2, 4) for row in range(self.active_boxes)]
+
+        Label(self.root, text="    ").grid(row=1, column=5)
 
         self.fill_text()
 
@@ -108,6 +133,12 @@ class Gui:
         self.delete_menu = Menu(self.customize_menu, tearoff=False)
         self.customize_menu.add_cascade(label="Delete Class", menu=self.delete_menu)
 
+        self.customize_menu.add_separator()
+        self.show_menu = Menu(self.customize_menu, tearoff=False)
+        self.customize_menu.add_cascade(label="Show Checkboxes", menu=self.show_menu)
+        self.show_menu.add_checkbutton(label="Show Drop Low", onvalue=1, offvalue=0, variable=self.show_drop, command=lambda: self.toggle_boxes(0))
+        self.show_menu.add_checkbutton(label="Show Extra Credit", onvalue=1, offvalue=0, variable=self.show_extra_credit, command=lambda: self.toggle_boxes(1))
+
         # This loop adds the classes to the menu to be renamed, deleted, syllabus loaded, etc.
         for item in self.class_info:
             self.naming.add_command(label=item[0], command=lambda label=item[0]: self.rename_class(label))
@@ -144,11 +175,11 @@ class Gui:
         if self.class_index == -1:
             for row in range(self.active_boxes):
                 label = Label(self.root, text="")
-                label.grid(row=row+2, column=0, sticky=E, padx=10)
+                label.grid(row=row+2, column=0, padx=10, sticky=E)
         else:
             for row in range(self.active_boxes):
                 label = Label(self.root, text=self.class_info[self.class_index][row*5+1])
-                label.grid(row=row + 2, column=0, sticky=E, padx=10)
+                label.grid(row=row + 2, column=0, padx=10, sticky=E)
 
     # This function creates an entry in the proper place and returns the object to be stored in an
     # array for easy looping capabilities
@@ -165,12 +196,40 @@ class Gui:
     # This function is similar to the previous only for checkboxes, and it checks the box if the user
     # had previously saved the box checked.
     def create_check_boxes(self, row, col):
+        if not self.show_states[col-3]:
+            return
         var = IntVar()
         check_box = Checkbutton(self.root, variable=var)
         check_box.grid(padx=10, pady=10, column=col, row=row)
         if self.class_index != -1 and self.class_info[self.class_index][5 * (row - 2) + col + 1] == "1":
             check_box.select()
-        return var
+        return var, check_box
+
+    # This method controls displaying the checkboxes on the right
+    def toggle_boxes(self, box):
+        self.show_states[box] = not self.show_states[box]
+        states_update = open(self.show_file_name, 'wb')
+        pickle.dump(self.show_states, states_update, pickle.HIGHEST_PROTOCOL)
+        states_update.close()
+        if not self.show_states[box]:
+            if box == 0:
+                self.drop_label.grid_forget()
+                for child in self.drop_low:
+                    child[1].grid_forget()
+            else:
+                self.extra_label.grid_forget()
+                for child in self.extra_credit:
+                    child[1].grid_forget()
+
+        else:
+            if box == 0:
+                self.drop_label = Label(self.root, text="Drop lowest grade?")
+                self.drop_label.grid(row=1, column=3)
+                self.drop_low = [self.create_check_boxes(row + 2, 3) for row in range(self.active_boxes)]
+            else:
+                self.extra_label = Label(self.root, text="Extra credit?")
+                self.extra_label.grid(row=1, column=4)
+                self.extra_credit = [self.create_check_boxes(row + 2, 4) for row in range(self.active_boxes)]
 
     # Here we loop search self.class_info to find the class the user chose to open, and then when found,
     # set self.active_boxes to the number of categories previously saved and self.class_index to the row
@@ -201,10 +260,14 @@ class Gui:
         weight_sum = 0
 
         for box in range(self.active_boxes):
-            grades.append(self.parse_grades(self.scores[box].get(), self.drop_low[box].get()))
+            if self.show_states[0]:
+                drop = self.drop_low[box][0].get()
+            else:
+                drop = 0
+            grades.append(self.parse_grades(self.scores[box].get(), drop))
             weights.append(self.parse_grades(self.weights[box].get(), False))
             weighted_grades.append(grades[box] * weights[box])
-            if not self.extra_credit[box].get():
+            if self.show_states[1] and not self.extra_credit[box][0].get():
                 weight_sum += weights[box]
             self.scores[box].config(bg='white')
             self.weights[box].config(bg='white')
@@ -247,7 +310,7 @@ class Gui:
         changed_line = [self.class_info[self.class_index][0]]
 
         for item in range(self.active_boxes):
-            changed_line.extend((self.class_info[self.class_index][item*5+1], self.scores[item].get(), self.weights[item].get(), self.drop_low[item].get(), self.extra_credit[item].get()))
+            changed_line.extend((self.class_info[self.class_index][item*5+1], self.scores[item].get(), self.weights[item].get(), self.drop_low[item][0].get(), self.extra_credit[item][0].get()))
 
         self.class_info[self.class_index] = changed_line
 
@@ -347,7 +410,7 @@ class Gui:
 
         root = Toplevel()
         root.title("Add a Class")
-        img = PhotoImage(file='favicon-5.gif')
+        img = PhotoImage(file='favicon.gif')
         root.tk.call('wm', 'iconphoto', root._w, img)
 
         title = Label(root, text="What is the name of your class to be called?")
@@ -403,7 +466,13 @@ class Gui:
             writing.close()
 
             try:
-                os.rename(to_be_renamed+'.pdf', name+'.pdf')
+                for syl in os.listdir():
+                    if syl[:syl.rfind('.')] == to_be_renamed:
+                        ending = syl[syl.rfind('.'):]
+                        break
+                else:
+                    raise FileNotFoundError
+                os.rename(to_be_renamed+ending, name+ending)
             except FileNotFoundError:
                 pass
 
@@ -412,7 +481,7 @@ class Gui:
 
         root = Toplevel()
         root.title("Rename a Class")
-        img = PhotoImage(file='favicon-5.gif')
+        img = PhotoImage(file='favicon.gif')
         root.tk.call('wm', 'iconphoto', root._w, img)
 
         title = Label(root, text="What do you want your class to be renamed to?")
@@ -457,22 +526,45 @@ class Gui:
     # This function is responsible for saving the class syllabus on the computer.
     # It just asks the user where the syllabus is and then copies it to the cwd
     def save_syl(self, class_name):
+        good_endings = ['.pdf', '.doc', '.docx', '.rtf', '.jpg', '.gif']
         syl_name = askopenfilename(filetypes=(("PDF files", "*.pdf;*.PDF"),
-                                              ("All files", "*.*")))
+                                              ("Word Documents", "*.doc;*.docx"),
+                                              ("All files", "*.*"),))
 
         if not syl_name:
             return
 
-        if not syl_name.lower().endswith(".pdf"):
-            self.status.config(text="That's not a PDF file, sorry")
-            return
+        ending = syl_name[syl_name.rfind('.'):]
+        print(ending)
+        print(class_name)
+        if ending.lower() not in good_endings:
+            self.status.config(text="That's not a valid format, sorry")
 
-        shutil.copyfile(syl_name, class_name + '.pdf')
+        for file in os.listdir():
+            if file.startswith(class_name):
+                os.remove(file)
+
+        shutil.copyfile(syl_name, class_name + ending)
 
     # This method opens the syllabus for a given class
     def open_syl(self, class_name):
         try:
-            os.startfile(class_name + '.pdf')
+            for syl in os.listdir():
+                place = syl.rfind('.')
+                print(syl[:place])
+                print(class_name)
+                print()
+                if syl[:syl.rfind('.')] == class_name:
+                    file_name = syl
+                    print(file_name)
+                    break
+            else:
+                raise FileNotFoundError
+            if sys.platform == "win32":
+                os.startfile(file_name)
+            else:
+                opener = "open" if sys.platform == "darwin" else "xdg-open"
+                subprocess.call([opener, file_name])
         except FileNotFoundError:
             self.status.config(text="No syllabus for this class yet!")
 
@@ -500,7 +592,7 @@ class Gui:
         root.minsize(600, 200)
         root.maxsize(600, 200)
         root.title("Help")
-        img = PhotoImage(file='favicon-5.gif')
+        img = PhotoImage(file='favicon.gif')
         root.tk.call('wm', 'iconphoto', root._w, img)
 
         var = StringVar(root)
@@ -549,7 +641,7 @@ class Gui:
 
         root = Toplevel()
         root.title('About this program')
-        img = PhotoImage(file='favicon-5.gif')
+        img = PhotoImage(file='favicon.gif')
         root.tk.call('wm', 'iconphoto', root._w, img)
 
         label = Label(root, text="This is a privately developed Python GUI Application\n"
