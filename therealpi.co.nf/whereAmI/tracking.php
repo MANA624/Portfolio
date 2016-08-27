@@ -2,6 +2,8 @@
 
 session_start();
 
+$_SESSION['current_page'] = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
 if (isset($_SESSION['visited'])){
         $_SESSION['visited'] = true;
 }

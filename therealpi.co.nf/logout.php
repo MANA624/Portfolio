@@ -8,7 +8,7 @@ if(isset($_POST['submit'])){
         unset($_SESSION['permissions']);
         unset($_SESSION['message']);
 
-        $redirect_page = 'http://therealpi.co.nf';
+        $redirect_page = $_SESSION['current_page'];
                                 
         header('Location: '.$redirect_page);
 }

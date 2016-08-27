@@ -2,6 +2,8 @@
 
 session_start();
 
+$_SESSION['current_page'] = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
 if (isset($_SESSION['visited'])){
         $_SESSION['visited'] = true;
 }
@@ -11,57 +13,87 @@ else{
 
 $response = '';
 $success = true;
-ini_set('post_max_size', '64M');
-ini_set('upload_max_filesize', '64M');
 
-if(isset($_FILES['fileUpload'])){
-	$name = $_FILES['fileUpload']['name'];
-	$size = $_FILES['fileUpload']['size'];
-	$max_size = 2097152;
-	$type = $_FILES['fileUpload']['type'];
-
-	$tmp_name = $_FILES['fileUpload']['tmp_name'];
-
-	$extension = strtolower(substr($name, strpos($name, '.')+1));
-
-}
-
-if(isset($name)){
-	if(!empty($name)){
-		if(($extension=='jpg'||$extension=='jpeg') && ($type='image/jpeg')){
-			if($size <= $max_size){
-				$location = '../uploads/';
-				
-				if(move_uploaded_file($tmp_name, $location.$name)){                                     
-					$response = 'File upload successful';
-				}
-				else{
-					$response = 'File upload failed';
-                                        $success = false;
-				}
-			}
-			else{
-				$response = 'File must be less than 2MB';
-                                $success = false;
-			}
-		}
-		else{
-			$response = 'Not a valid extension';
-                        $success = false;
-		}
-	}
-}
-
-if(isset($_POST['name'] && isset($_POST['email'] && isset($_POST['subject'] && isset($_POST['mainText']){
-        $contact_name = $_POST['name'];
-        $contact_email = $_POST['email'];
-        $subject = $_POST['subject'];
-        $main_text = $_POST['mainText'];
+function checkFields(){
+        global $response, $success;
+        ini_set('post_max_size', '64M');
+        ini_set('upload_max_filesize', '64M');
         
-        if(!isempty($contact_name) && !isempty($contact_email) && !isempty($subject) && !isempty($mainText)){
-                echo 'Yo';
+        if(isset($_FILES['fileUpload'])){
+                $name = $_FILES['fileUpload']['name'];
+                $size = $_FILES['fileUpload']['size'];
+                $max_size = 2097152;
+                $type = $_FILES['fileUpload']['type'];
+        
+                $tmp_name = $_FILES['fileUpload']['tmp_name'];
+        
+                $extension = strtolower(substr($name, strpos($name, '.')+1));
+        
+        }
+        
+        if(isset($name)){
+                if(!empty($name)){
+                        if(($extension=='jpg'||$extension=='jpeg') && ($type='image/jpeg')){
+                                if($size <= $max_size){
+                                        $location = '../uploads/';
+                                        
+                                        if(move_uploaded_file($tmp_name, $location.$name)){                                     
+                                                $response = 'File upload successful';
+                                        }
+                                        else{
+                                                $response = 'File upload failed';
+                                                $success = false;
+                                                return;
+                                        }
+                                }
+                                else{
+                                        $response = 'File must be less than 2MB';
+                                        $success = false;
+                                        return;
+                                }
+                        }
+                        else{
+                                $response = 'Not a valid image extension';
+                                $success = false;
+                                return;
+                        }
+                }
+        }
+
+
+        if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['subject']) && isset($_POST['mainText'])){
+                $contact_name = $_POST['name'];
+                $contact_email = $_POST['email'];
+                if (!filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+                        $success = false;
+                        $response = "Not a valid email address";
+                        return;
+                }
+                $subject = $_POST['subject'];
+                $mainText = $_POST['mainText'];
+                
+                if(!empty($contact_name) && !empty($contact_email) && !empty($subject) && !empty($mainText)){
+        
+                        $to      = 'pivotman624@gmail.com';
+                        $message = $mainText;
+                        $headers = 'From: '.$contact_email;
+                        
+                        $sent = mail($to, $subject, $message, $headers);
+                        if($sent){
+                                $response = "Your mail was sent successfuly";
+                        }
+        
+        
+                }
+                else{
+                        $success = false;
+                        $response = "One or more fields is empty!";
+                        
+                }
         }
 }
+
+checkFields();
 
 ?>
 

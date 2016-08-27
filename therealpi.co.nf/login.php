@@ -1,5 +1,4 @@
 <?php 
-
 if(isset($_POST['username']) && isset($_POST['password'])){
         session_start();
         
@@ -11,15 +10,12 @@ if(isset($_POST['username']) && isset($_POST['password'])){
         $query = "SELECT `password` FROM `users` WHERE `username`='".$entered_name."'";
         
         if($results = mysqli_query($con, $query)){
-                while($row = mysqli_fetch_array($results)){
+                if($row = mysqli_fetch_array($results)){
                         $database_password = $row[0];
                         if(md5($entered_password) == $database_password){
                                 
                                 $_SESSION['username'] = $entered_name;
                                 
-                                
-                                
-                                $_SESSION['message'] = 'You have logged in!';
                                 
                                 $permissions_query = "SELECT `clearance` FROM `users` WHERE `username`='".$entered_name."'";
 
@@ -31,17 +27,28 @@ if(isset($_POST['username']) && isset($_POST['password'])){
                         }
                         else{
                                 $_SESSION['message'] = "Incorrect Password";
+                                $_SESSION['showed'] = 2;
                         }
                         
+                }
+                else{
+                        $_SESSION['message'] = 'Username not valid';
+                        $_SESSION['showed'] = 2;
                 }
                 
         }
         else{
-                echo mysqli_error($con);
+                $_SESSION['message'] = 'Unexpected error!';
+                $_SESSION['showed'] = 2;
         }
-        $redirect_page = 'http://therealpi.co.nf';
+        $redirect_page = $_SESSION['current_page'];
                                 
         header('Location: '.$redirect_page);
+}
+else{
+        if(!isset($_SESSION['message'])){
+                $_SESSION['message'] = "Please log in for more features!";
+         }
 }
 
 ?>
@@ -50,8 +57,14 @@ if(isset($_POST['username']) && isset($_POST['password'])){
 <div id="side">
 <aside id="news">
         <h4>Login</h4>
-        <p>Please login for more features!</p><br/>
-        
+        <p><?php 
+                if($_SESSION['showed'] > 0){
+                        echo $_SESSION['message']; 
+                        $_SESSION['showed']--;
+                }else{
+                        echo 'Please log in for more features!';
+                }
+        ?></p><br/>
         <form action="<?php echo $_SERVER['HOST_NAME']; ?>/login.php" method="POST">
                 Username: <input type="text" class="loginBox" name="username" />
                 Password: <input type="password" class="loginBox" name="password" />
