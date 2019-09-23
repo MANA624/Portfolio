@@ -1,1 +1,0 @@
-Thank you for your interest in my GitHub portfolio! This is a compilation of a few of my prorgamming projects. I will always keep them up-to-date as best as I can, but please take a look at some of my different projects I've done!
