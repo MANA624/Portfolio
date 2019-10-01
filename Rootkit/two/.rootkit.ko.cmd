@@ -1,0 +1,1 @@
+cmd_/home/user/Dropbox/School/Advanced_OS/current/two/rootkit.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/user/Dropbox/School/Advanced_OS/current/two/rootkit.ko /home/user/Dropbox/School/Advanced_OS/current/two/rootkit.o /home/user/Dropbox/School/Advanced_OS/current/two/rootkit.mod.o

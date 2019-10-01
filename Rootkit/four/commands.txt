@@ -1,0 +1,9 @@
+sudo mknod /dev/better c 262 0
+sudo chmod 777 /dev/better
+ls /dev | grep better
+make
+sudo insmod better.ko
+cat /proc/devices | grep bdetect
+
+# See sys_calls_table
+cat /usr/include/asm/unistd_64.h | grep getdents

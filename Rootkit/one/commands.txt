@@ -1,0 +1,6 @@
+sudo mknod /dev/getprocinfo c 261 0
+sudo chmod 777 /dev/getprocinfo
+ls /dev | grep getprocinfo
+make
+sudo insmod getprocinfo.ko
+cat /proc/devices | grep procDriver

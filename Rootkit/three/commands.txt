@@ -1,0 +1,9 @@
+sudo mknod /dev/identify c 262 0
+sudo chmod 777 /dev/identify
+ls /dev | grep identify
+make
+sudo insmod identify.ko
+cat /proc/devices | grep detect
+
+# See sys_calls_table
+cat /usr/include/asm/unistd_64.h | grep getdents

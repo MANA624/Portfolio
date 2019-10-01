@@ -1,0 +1,9 @@
+GetProcInfo:
+http://tuxthink.blogspot.com/2012/07/module-to-find-task-from-its-pid.html
+http://derekmolloy.ie/writing-a-linux-kernel-module-part-2-a-character-device/
+
+Rootkit:
+https://0x00sec.org/t/hiding-with-a-linux-rootkit/4532
+https://bbs.archlinux.org/viewtopic.php?id=139406
+http://www.ouah.org/spacelkm.txt
+https://android.googlesource.com/kernel/msm/+/e7a3029ebf4175889e8bdb278fd9cf02a211118c/fs/read_write.c
