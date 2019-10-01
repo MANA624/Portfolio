@@ -19,6 +19,59 @@ import subprocess
 import pickle
 
 
+# The following is code imported from http://www.voidspace.org.uk/python/weblog/arch_d7_2006_07_01.shtml
+# This is the code I use to create a tooltip for all of the options and help
+class ToolTip(object):
+
+    def __init__(self, widget):
+        self.widget = widget
+        self.tipwindow = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self, text):
+        "Display text in tooltip window"
+        self.text = text
+        if self.tipwindow or not self.text:
+            return
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() + 27
+        y = y + cy + self.widget.winfo_rooty() +27
+        self.tipwindow = tw = Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        try:
+            # For Mac OS
+            tw.tk.call("::tk::unsupported::MacWindowStyle",
+                       "style", tw._w,
+                       "help", "noActivates")
+        except TclError:
+            pass
+        label = Label(tw, text=self.text, justify=LEFT,
+                      background="#ffffe0", relief=SOLID, borderwidth=1,
+                      font=("tahoma", "8", "normal"))
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
+
+def createToolTip(widget, text):
+    toolTip = ToolTip(widget)
+
+    def enter(event):
+        toolTip.showtip(text)
+
+    def leave(event):
+        toolTip.hidetip()
+    widget.bind('<Enter>', enter)
+    widget.bind('<Leave>', leave)
+# This is the end of my imported toop tip code. The rest is written by me
+
+
 # This is the class used to contain the application. All functionality and design are stored inside the
 # following lines of code
 class Gui:
@@ -39,6 +92,10 @@ class Gui:
     categories = 0
     class_index = -1
     line = []
+    title_extension = ""
+    status_fill = ""
+
+    # photo = PhotoImage(file="Instruction.png")
 
     # Options dealing with the Show section of the Customize menu
     show_file_name = "show.pkl"
@@ -56,6 +113,13 @@ class Gui:
     show_drop.set(show_states[0])
     show_extra_credit.set(show_states[1])
 
+    if show_states[1]:
+        farthest_left = 4
+    elif show_states[0]:
+        farthest_left = 3
+    else:
+        farthest_left = 2
+
     # This lets the program know that the user is not trying to rename a class, add a class, get help, etc.
     child_window_open = False
 
@@ -67,25 +131,33 @@ class Gui:
         # These enable keyboard shortcuts
         self.root.bind("<Control-s>", self.save_scores)
         self.root.bind("<Control-a>", self.add_class)
+        self.root.bind("<Control-q>", lambda x: self.root.destroy())
 
-        Label(self.root, text="Welcome to the Grade Averager").grid(row=0, columnspan=6, padx=10, pady=20)
+        Label(self.root, text="Welcome to the Grade Averager" + self.title_extension).grid(row=0, columnspan=6, padx=10, pady=20)
 
         Label(self.root, text="Category").grid(row=1, column=0, padx=10, sticky=E)
-        Label(self.root, text="Score(s)").grid(row=1, column=1)
-        Label(self.root, text="Weight (%)").grid(row=1, column=2)
+        score_label = Label(self.root, text="Score(s)")
+        score_label.grid(row=1, column=1)
+        createToolTip(score_label, "Separate with commas. Eg.\n90, 83, 98, 75")
+        weight_label = Label(self.root, text="Weight (%)")
+        weight_label.grid(row=1, column=2)
+        createToolTip(weight_label, "How much weight does the category have?\nHint: They should add up to 100")
         if self.show_states[0]:
             self.drop_label = Label(self.root, text="Drop lowest grade?")
             self.drop_label.grid(row=1, column=3, padx=4)
+            createToolTip(self.drop_label, "Discards the lowest score from Score(s)")
         if self.show_states[1]:
             self.extra_label = Label(self.root, text="Extra credit?")
             self.extra_label.grid(row=1, column=4, padx=4)
+            createToolTip(self.extra_label, "Check if score is extra credit")
 
         # These lines of code set up the input points for the user. self.active_boxes
         # (initially set to 6) determines how many rows (or categories) to create
-        self.scores = [self.create_entries(row+2, 1) for row in range(self.active_boxes)]
-        self.weights = [self.create_entries(row+2, 2) for row in range(self.active_boxes)]
-        self.drop_low = [self.create_check_boxes(row + 2, 3) for row in range(self.active_boxes)]
-        self.extra_credit = [self.create_check_boxes(row+2, 4) for row in range(self.active_boxes)]
+        temp_box = [(self.create_entries(row+2, 1), self.create_entries(row+2, 2)) for row in range(self.active_boxes)]
+        self.scores, self.weights = zip(*temp_box)
+
+        temp_check = [(self.create_checks(row + 2, 3), self.create_checks(row+2, 4)) for row in range(self.active_boxes)]
+        self.drop_low, self.extra_credit = zip(*temp_check)
 
         Label(self.root, text="    ").grid(row=1, column=5)
 
@@ -97,12 +169,17 @@ class Gui:
 
         self.reset = Button(self.bottom_frame, text="Reset", command=lambda: self.restart(True))
         self.reset.grid(row=0, column=0, padx=10, pady=10)
+        createToolTip(self.reset, "This closes out of the current class\nand clears all boxes without saving")
 
         self.submit = Button(self.bottom_frame, text="Submit", command=lambda: Thread(target=self.submit_form).start())
         self.submit.grid(row=0, column=1, padx=10, pady=10)
 
-        self.status = Label(self.bottom_frame)
+        self.status = Label(self.bottom_frame, text=self.status_fill)
         self.status.grid(padx=10, pady=10, row=1, columnspan=5)
+
+        self.question = Label(self.root, text="Hover for help")
+        self.question.grid(padx=3, pady=3, sticky=NE, row=0, column=self.farthest_left)
+        createToolTip(self.question, "Enter your grades in Score(s)\nAnd what percent of the class it\ncounts for in Weight (%)\nAnd then hit Submit!\nFor more help, go to Help > Help")
 
         self.menu = Menu(self.root)
         self.root.config(menu=self.menu)
@@ -122,7 +199,7 @@ class Gui:
         self.save_command = self.file_menu.add_command(label='Save Scores', accelerator="Ctr+S", state=self.save_state, command=self.save_scores)
         self.file_menu.add_separator()
 
-        self.file_menu.add_command(label='Quit', command=self.root.destroy)
+        self.file_menu.add_command(label='Quit', accelerator="Ctr+Q", command=self.root.destroy)
 
         self.customize_menu = Menu(self.menu, tearoff=False)
         self.menu.add_cascade(label='Customize', menu=self.customize_menu)
@@ -195,12 +272,12 @@ class Gui:
 
     # This function is similar to the previous only for checkboxes, and it checks the box if the user
     # had previously saved the box checked.
-    def create_check_boxes(self, row, col):
-        if not self.show_states[col-3]:
-            return
+    def create_checks(self, row, col):
+
         var = IntVar()
         check_box = Checkbutton(self.root, variable=var)
-        check_box.grid(padx=10, pady=10, column=col, row=row)
+        if self.show_states[col - 3]:
+            check_box.grid(padx=10, pady=10, column=col, row=row)
         if self.class_index != -1 and self.class_info[self.class_index][5 * (row - 2) + col + 1] == "1":
             check_box.select()
         return var, check_box
@@ -211,25 +288,37 @@ class Gui:
         states_update = open(self.show_file_name, 'wb')
         pickle.dump(self.show_states, states_update, pickle.HIGHEST_PROTOCOL)
         states_update.close()
-        if not self.show_states[box]:
-            if box == 0:
+        # These functions will seem backwards because I switch the value of self.show_states[box] before this line
+        if not self.show_states[box]:  # If the box is currently being shown
+            if not box:  # If the Drop Lowest Grade boxes are currently being shown
                 self.drop_label.grid_forget()
                 for child in self.drop_low:
                     child[1].grid_forget()
-            else:
+                if not self.show_states[1]:
+                    self.farthest_left = 2
+            else:  # If the Extra Credit Boxes are currently being shown
                 self.extra_label.grid_forget()
                 for child in self.extra_credit:
                     child[1].grid_forget()
+                if self.show_states[0]:
+                    self.farthest_left = 3
+                else:
+                    self.farthest_left = 2
 
-        else:
-            if box == 0:
+        else:  # If the boxes are not currently being shown
+            if not box:  # If the Drop Lowest Grade Boxes are not currently being shown
                 self.drop_label = Label(self.root, text="Drop lowest grade?")
                 self.drop_label.grid(row=1, column=3)
-                self.drop_low = [self.create_check_boxes(row + 2, 3) for row in range(self.active_boxes)]
-            else:
+                self.drop_low = [self.create_checks(row + 2, 3) for row in range(self.active_boxes)]
+                if not self.show_states[1]:
+                    self.farthest_left = 3
+            else:  # If the Extra Credit boxes are not currently being shown
                 self.extra_label = Label(self.root, text="Extra credit?")
                 self.extra_label.grid(row=1, column=4)
-                self.extra_credit = [self.create_check_boxes(row + 2, 4) for row in range(self.active_boxes)]
+                self.extra_credit = [self.create_checks(row + 2, 4) for row in range(self.active_boxes)]
+                self.farthest_left = 4
+
+        self.question.grid(column=self.farthest_left)
 
     # Here we loop search self.class_info to find the class the user chose to open, and then when found,
     # set self.active_boxes to the number of categories previously saved and self.class_index to the row
@@ -238,13 +327,15 @@ class Gui:
         self.active_boxes = 6
         for i in range(len(self.class_info)):
             if self.class_info[i][0] == class_name:
+                self.title_extension = ' - ' + class_name
                 self.class_index = i
                 break
         try:
             self.active_boxes = int((len(self.class_info[self.class_index])-1)/5)
         except NameError:
-            self.status.config(text="Class not found\nDid you corrupt the data file?")
+            self.status.config(text="Class not found\nDid you corrupt the file?")
 
+        self.status_fill = "Class loaded!"
         self.save_state = "normal"
         self.restart(False)
 
@@ -252,7 +343,6 @@ class Gui:
     # drops the lowest grade if necessary, weights the categories, and prints the result to the
     # screen. This is the only function that this program could not live without.
     def submit_form(self):
-
         bad = 0
         grades = []
         weights = []
@@ -260,14 +350,12 @@ class Gui:
         weight_sum = 0
 
         for box in range(self.active_boxes):
-            if self.show_states[0]:
-                drop = self.drop_low[box][0].get()
-            else:
-                drop = 0
+            drop = self.drop_low[box][0].get() if self.show_states[0] else 0
+
             grades.append(self.parse_grades(self.scores[box].get(), drop))
             weights.append(self.parse_grades(self.weights[box].get(), False))
             weighted_grades.append(grades[box] * weights[box])
-            if self.show_states[1] and not self.extra_credit[box][0].get():
+            if not (self.show_states[1] and self.extra_credit[box][0].get()):
                 weight_sum += weights[box]
             self.scores[box].config(bg='white')
             self.weights[box].config(bg='white')
@@ -294,6 +382,9 @@ class Gui:
     # It is usually called to update the menu or number of entries
     def restart(self, wipe):
         if wipe:
+            self.save_state = "disabled"
+            self.title_extension = ''
+            self.status_fill = 'Window reset'
             self.class_index = -1
             self.active_boxes = 6
         for child in self.root.winfo_children():
@@ -306,6 +397,7 @@ class Gui:
     # this type of data, the amount of which varies so much
     def save_scores(self, *args):
         if self.save_state == "disabled":
+            self.status.config(text="Sorry! No class is loaded!")
             return
         changed_line = [self.class_info[self.class_index][0]]
 
@@ -505,6 +597,10 @@ class Gui:
     # This function is called from the submiting method and it used to check for valid input and parse strings
     # to retrieve numbers separated by commas
     def parse_grades(self, grades, drop):
+        if not grades:
+            return False
+        if grades[0] == '#':
+            return 0
         scores = grades.split(',')
 
         try:
@@ -527,16 +623,14 @@ class Gui:
     # It just asks the user where the syllabus is and then copies it to the cwd
     def save_syl(self, class_name):
         good_endings = ['.pdf', '.doc', '.docx', '.rtf', '.jpg', '.gif']
-        syl_name = askopenfilename(filetypes=(("PDF files", "*.pdf;*.PDF"),
-                                              ("Word Documents", "*.doc;*.docx"),
-                                              ("All files", "*.*"),))
+        syl_name = askopenfilename(filetypes=(("All files", "*.*"),
+                                              ("PDF files", ("*.pdf", "*.PDF")),
+                                              ("Word Documents", ("*.doc", "*.docx")),))
 
         if not syl_name:
             return
 
         ending = syl_name[syl_name.rfind('.'):]
-        print(ending)
-        print(class_name)
         if ending.lower() not in good_endings:
             self.status.config(text="That's not a valid format, sorry")
 
@@ -545,26 +639,25 @@ class Gui:
                 os.remove(file)
 
         shutil.copyfile(syl_name, class_name + ending)
+        self.status.config(text="Syllabus Saved!")
 
     # This method opens the syllabus for a given class
     def open_syl(self, class_name):
         try:
             for syl in os.listdir():
                 place = syl.rfind('.')
-                print(syl[:place])
-                print(class_name)
-                print()
-                if syl[:syl.rfind('.')] == class_name:
+                if syl[:place] == class_name:
                     file_name = syl
-                    print(file_name)
                     break
             else:
                 raise FileNotFoundError
             if sys.platform == "win32":
                 os.startfile(file_name)
+                self.status.config(text="Syllabus Opening...")
             else:
                 opener = "open" if sys.platform == "darwin" else "xdg-open"
                 subprocess.call([opener, file_name])
+                self.status.config(text="Syllabus Opening...")
         except FileNotFoundError:
             self.status.config(text="No syllabus for this class yet!")
 
@@ -578,19 +671,29 @@ class Gui:
 
         def config_text(*args):
             if var.get() == 'General':
-                label.config(text=gen_text)
-
+                label.config(text=gen_text, image='', relief=FLAT)
+                root.minsize(700, 200)
+                root.maxsize(700, 200)
             if var.get() == 'Renaming Classes':
-                label.config(text=rnme_text)
-
+                label.config(text=rnme_text, image='', relief=FLAT)
+                root.minsize(620, 200)
+                root.maxsize(620, 200)
             if var.get() == 'Opening Your Syllabus':
-                label.config(text=syl_text)
-
+                label.config(text=syl_text, image='', relief=FLAT)
+                root.minsize(700, 200)
+                root.maxsize(700, 200)
             if var.get() == 'Opening Saved Grades':
-                label.config(text=grd_text)
+                label.config(text=grd_text, image='', relief=FLAT)
+                root.minsize(700, 200)
+                root.maxsize(700, 200)
+            # elif var.get() == 'Sample Image':
+            #     label.config(text='', image=self.photo, relief=RAISED)
+            #     root.minsize(900, 500)
+            #     root.maxsize(900, 500)
+
         root = Toplevel()
-        root.minsize(600, 200)
-        root.maxsize(600, 200)
+        root.minsize(700, 200)
+        root.maxsize(700, 200)
         root.title("Help")
         img = PhotoImage(file='favicon.gif')
         root.tk.call('wm', 'iconphoto', root._w, img)
@@ -598,7 +701,7 @@ class Gui:
         var = StringVar(root)
         # initial value
         var.set('General')
-        choices = ['General', 'Renaming Classes', 'Opening Your Syllabus', 'Opening Saved Grades']
+        choices = ['General', 'Renaming Classes', 'Opening Your Syllabus', 'Opening Saved Grades', 'Sample Image']
         option = OptionMenu(root, var, *choices, command=config_text)
 
         option.grid(pady=20, padx=10, sticky=S)
@@ -608,8 +711,10 @@ class Gui:
         gen_text = "Welcome to the Grade Averager!\n\n" \
                    "In the grade percentage, enter as many grades as you want in the\n" \
                    "same box separated by commas and they will be averaged. Then put the\n" \
-                   "percentage of weight they have and enter it. Feel free to leave any boxes\n" \
-                   "Please feel free to give suggestions and comments!"
+                   "percentage of weight they have and enter it. i.e. Feel free to leave any boxes\n" \
+                   "Please feel free to give suggestions and comments! Also, you can now\n" \
+                   "start a line with a \"#\" to skip over that box, in case you want to\n" \
+                   "leave values for a later time"
 
         rnme_text = "In order to rename a class go to Customize > Rename Class and\n" \
                     "then pick the class you want to rename. Type what you want to\n" \
@@ -656,10 +761,6 @@ class Gui:
         root.mainloop()
 
 
-# Finally, the main function
-def main():
-    Gui()
-
 # Checking to make sure that the script is being executed
 if __name__ in "__main__:":
-    main()
+    Gui()
