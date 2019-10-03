@@ -1,0 +1,22 @@
+Matthew Niemiec
+CSCI 4229
+Fall 2027
+Programming Assignment 4
+Professor Sangtae Ha
+
+To start the proxy server in the command line:
+./webproxy <port_num> &
+OR
+./webproxy <port_num> <timeout> &
+
+
+To run Chrome with a proxy on Linux through command line:
+google-chrome --proxy-server=127.0.0.1:<port_num>
+
+To test proxy with telnet:
+telnet 127.0.0.1 <port_num>		then:
+GET http://www.google.com HTTP/1.1
+
+------------------------------------
+This proxy server implements caching for the GET protocol.
+

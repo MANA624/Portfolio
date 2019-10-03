@@ -1,0 +1,27 @@
+Matthew Niemiec
+CSCI 4273 Network Systems
+Professor Sangtae Ha
+Programming Assignment 2
+=======================
+
+
+This is a web server written by Matthew Niemiec
+It takes no command-line arguments
+
+It accepts POST requests, as shown in the extra credit portion of the assignment
+For POST requests, it takes all data after the first empty line, and puts it in between the appropriate tags just after the <head> tag in the html
+
+The HTTP 1.1 extra credit was not implemented
+
+When accepting a new connection, the program calls fork() and creates a new child process to handle the request, enabling simultaneous access to the site
+These children are reaped when they finish execution in intHandler()
+Likewise, the program exits gracefully after closing the socket in intHandler()
+
+The proram reads in all data from wf.conf and stores this data in the cf struct in the populateConfig() function
+When sending headers, this is referenced to get the Content Type to put in the header in getContentType()
+There is other info in this struct, such as the port number, the location of error files, the document root, and the name of the index.html file
+
+When asking for a file that this program doesn't have, it will return a 404 Not Found error page
+When using a protocol other than GET or POST, it will return a 501 Not Implemented error page
+
+

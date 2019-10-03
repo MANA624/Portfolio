@@ -1,0 +1,30 @@
+Matthew Niemiec
+CSCI 4273
+Professor: Sangtae Ha
+Programming Assignment 1
+----------------------------
+
+There are two folders, client and server
+Each folder has its own respective Makefile
+Steps to run the program:
+1) Run the make command in each folder
+2) Start the server with "./server [PORT#]"
+3) Start the client with "./client [PORT#] [SERVER_IP_ADDR]"
+4) Enter one of the following commands:
+	- get [FILENAME]
+	- put [FILENAME]
+	- rput [FILENAME]
+	- delete [FILENAME]
+	- ls
+	- exit
+
+The get command retrieves a file from the server if it exists.
+The put command sends a file to the server if it exists
+The delete command deletes a file in the server's directory if it exists
+The ls command returns a list of all files in the server's current directory
+The exit command exits both the client and server
+
+EXTRA CREDIT
+-------------
+The rput command is the same as the put command, only the client first sends the MD5 hash of the file, then the file contents, then the server checks that the MD5 of the file equals the MD5 send by the server, and repeats until they are equal. Thus when they are equal the server is guaranteed to have the correct, uncorrupted file.
+

@@ -1,0 +1,49 @@
+Matthew Niemiec
+CSCI 4273
+Fall 2017
+Professor Sangtae Ha
+11/12/17
+Programming Assignment 3 - Distributed File System.
+
+--------------------------------------------------------
+This assignment contains:
+1) Two code files:
+ 	1. DFC.c - contains code for distributed file client
+	2. DFS.c - contains code for distributed file server
+
+2) Four config files:
+	1. dfs.conf - config file containing all valid usernames and passwords for server
+	2. dfc1.conf - valid config file containing a correct username/password and other info for client
+	3. dfc2.conf - Same as dfc1, but with different username and password
+	4. dfcx.conf - Valid client config file, but with invalid username/password combo
+
+3) Two server scripts:
+	1. runall.sh - Run ./runall.sh to start all DFS servers
+	2. killall.sh - Run ./killall.sh to kill -9 all DFS servers
+
+4) Three sample text files:
+	1. works1.txt - contains numbers 1 to 4
+	2. works2.txt - contains numbers 1 to 23
+	3. works3.txt - contains 69141 bytes of pure gibberish for a large text file
+
+5) Three sample images:
+	1. smaller.jpg - Very small jpg file for testing sending small binary data
+	2. small.png - Slightly larger png file for testing sending average biinary data
+	3. huge.png - Much larger png file of 66413 bytes for large binary data
+
+6) One Makefile:
+	1. type `make` to compile all code and `make clean` to remove executables
+
+---------------------------------------------------------------
+Upon running, this program will make 5 directories of two types:
+	1. DFS1/, DFS2/, DFS3/, and DFS4/ are all directories created by DFS
+	2. downloads/ is a directory where `get` files are stored by the DFC
+
+---------------------------------------------------------------
+To run program, do the following:
+	1. In one terminal, type `make`
+	2. Then type `./runall.sh`
+	3. In another terminal, type `./DFC dfc?.conf` where ? is replaced by the config file specified
+	4. Begin entering `put <file>`, `get <file>`, or `ls`
+
+
